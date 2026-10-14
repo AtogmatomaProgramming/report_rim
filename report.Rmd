@@ -1,0 +1,629 @@
+---
+title: "RIM ANALYSIS REPORT"
+author: "SAP-RIM"
+date: "2026-01-21"
+output:
+  html_document:
+    toc: yes
+    toc_depth: 4
+    toc_float: yes
+    collapsed: yes
+    smooth_scroll: yes
+    theme: journal
+    highlight: kate
+    df_print: paged
+    code_folding: hide
+  pdf_document:
+    toc: yes
+    toc_depth: '4'
+  word_document:
+    toc: yes
+    toc_depth: '4'
+mail: alberto.candelario@ieo.csic.es
+editor_options:
+  markdown:
+    wrap: 72
+markdown: null
+wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r}
+
+#### ---- Configuration of general settings ---- ####
+
+source(file.path(getwd(), "R", "load_settings.R"))
+
+
+```
+
+```{r}
+
+#### ---- Load RIM and NVDP data ---- #### 
+
+## a) Work years ----
+
+years <- c("2022", "2023", "2024")
+
+## b) specific work year ----
+
+specific_year <- c("2023")
+
+## b) Load nvdp files ----
+
+nvdp <- load_nvdp_data(years)
+
+## c) Load rim files ----
+
+rim <- load_rim_data(years)
+
+```
+
+# Introducción
+
+El presente documento constituye un análisis en detalle de los puertos
+que conforman la Red de Información y Muestreo (RIM) en el ámbito
+geográfico [INSERTAR AREAS MUESTREO, ej: Asturas-Cantabria],
+correspondientes a la región [INSERTAR REGIÓN DE TRABAJO, ej: Cántabrico
+Central].
+
+Se hace, por tanto, una comparativa cronológica de los años [INSERTAR
+AÑOS] de los parámetros de calidad de los muestreos, extrayendo las
+principales conclusiones que desprendan los mismos.
+
+# Metodología
+
+El siguiente texto tiene como parte fundamental el análisis de los datos
+de mareas muestreadas de la RIM y de las totales que desembarcan en el
+país (NVDP) de cara a mostrar una imagen detallada del estado de esta
+práctica.
+
+El manejo de las fuentes de datos, así como la estructura del análisis
+se detalla a continuación.
+
+**1. Análisis de tendencias de los puertos de la RIM en [INSERTAR
+ANHOS].** Donde se comparan las mareas por estrato RIM en los tres años,
+así como el número total de visitas totales por puerto.
+
+**2. Análisis del conjunto de puertos RIM en 2023,** donde el análisis
+se centra en el total de mareas descargadas en cada puerto RIM (sacadas
+del NVDP) así como las mareas que fueron muestreadas en el conjunto de
+los puertos CC por estrato RIM (SIRENO).
+
+**3. Análisis individual de cada puerto RIM**, con el fin de ver las
+mareas que aporta cada uno al ejercicio anual 2023. También se adjunta
+información relevante en cada puerto como funcionamiento de venta en
+lonja, horario de venta, etc. En este mismo apartado se describen las
+mareas en cada puerto durante 2023, con el número total de mareas por
+estrato RIM, número de barcos únicos que cubren cada marea (obtenidos de
+NVDP) y el número de barcos muestreados respecto del total en la RIM
+(obtenidos de SIRENO).
+
+**4. Estudio de otros puertos** del ámbito geográfico CC con potencial
+para complementar la actual RIM. La información se ha obtenido del NVDP
+2023 para los puertos: Cudillero, Lastres, Santander, Laredo y Castro
+Urdiales.
+
+**5. Estudio del primer semestre de la RIM 2024 en los puertos CC**: los
+datos son obtenidos del conteo directo de los estadillos. Por tanto,
+están sujetos a posibles futuros cambios. Este número por tanto podría
+variar ligeramente. Diagnóstico: se detallan las principales
+conclusiones de la información obtenida en función de los datos de 2023
+en los puertos CC. También se apuntan futuras líneas que mejorarían la
+gestión de los puertos CC.
+
+# Área de estudio
+
+El espacio geográfico de estudio Cantábrico central (CC) corresponde a
+los puertos situados dentro de las Comunidades Autónomas de Asturias y
+Cantabria. Los puertos seleccionados actualmente dentro de la RIM son,
+de oeste a este: Luarca, Avilés, Gijón, Llanes, San Vicente de la
+Barquera y Santoña (Fig. 1).
+
+```{r}
+
+## ---- b) Vector with the work cities: change in your specific chase ---- 
+
+
+influence_area <- c("GN")
+
+cities <- prescription_ports[prescription_ports$AREA_INFLUENCIA == influence_area, 
+                             "PUERTO"]
+
+```
+
+
+
+
+```{r}
+
+#### ---- Representation of the Country Map with the study port ---- ####
+
+## ---- a) Edit the master port_coordinates_inf_area ---- 
+
+ports_coords$LATITUD <- as.numeric(ports_coords$LATITUD)
+
+ports_coords$LONGITUD <- as.numeric(ports_coords$LONGITUD)
+
+## ---- b) Filter ports_coord with the work cities ----
+
+coords_ports <- ports_coords[ports_coords$PUERTO %in% cities, ]
+
+## ---- c) Representación del mapa de España con los puertos de trabajo ----
+
+draw_map(coords_ports)
+
+```
+
+Además, en el apartado 4 se describen otros puertos con potencial para
+complementar la RIM en el ámbito CC. Estos puertos son, de oeste a este:
+Cudillero, Lastres, Santander, Laredo y Castro Urdiales.
+
+# Analisis
+
+## 1. Análisis de tendencias de los puertos RIM 2021, 2022 y 2023 (muestreos y visitas)
+
+En el presente apartado se analizan las mareas muestreadas y visitas
+realizadas en 2022, 2023 y 2024 en el conjunto de puertos del CC en
+Asturias y Cantabria.
+
+La comparativa de las mareas RIM muestreadas en 2021, 2022, 2023 por
+estrato RIM (Fig. 2), muestra un aumento notable de los muestreos en
+2023 (Fig. 2, B). Por otra parte, el estudio de los estratos RIM (Figura
+2.A) muestra como en 2023 las mareas de BETA_CN y PAREJA_CN presentan un
+descenso respecto de 2021 y 2022. Por el contrario, existe un aumento en
+los muestreos de TRASMALLO_CN, CERCO_CN; LINEA DE CABALLA_CN y
+PALANGRE_CN (Fig. 2, A). Los muestreos de los demás estratos RIM se
+mantienen bastante parecidos.
+
+```{r}
+
+## ---- Analysis visits per year by ESTRATO_RIM ----
+
+samples_year_stratum <- rim[rim$PUERTO %in% cities, ] %>% 
+  group_by(YEAR) %>% 
+  mutate(MUESTREOS_ANYO = n_distinct(COD_ID)) %>% 
+  group_by(ESTRATO_RIM, YEAR, MUESTREOS_ANYO) %>% 
+  summarise(MUESTREOS = n_distinct(COD_ID))
+
+
+```
+```{r}
+## ---- Obtain the stratums sampled ---- 
+
+stratums_sampled <- unique(samples_year_stratum$ESTRATO_RIM)
+
+
+```
+
+
+
+
+```{r}
+
+## ---- Plot the data visit_year_estratum ----
+
+fig_a <- ggplot(samples_year_stratum, 
+                aes(x = ESTRATO_RIM, 
+                    y = MUESTREOS, 
+                    fill = YEAR)) + 
+  geom_bar(stat = "identity", 
+           position = "dodge2") + 
+  scale_fill_discrete(name = "Año") + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+ 
+  
+
+fig_b <- ggplot(samples_year_stratum, 
+                aes(x = YEAR, 
+                    y = MUESTREOS_ANYO,
+                    fill = YEAR)) + 
+  geom_col() + 
+  ylab("MUESTREOS")
+
+
+(fig_a + fig_b) + 
+  plot_layout(widths = c(3, 1)) +
+  plot_annotation(
+    caption = "Figura 2: Comparación del número de mareas muestreadas por estrato RIM (izquierda) en al ámbito de estudio de CC: \nA) en los años 2022 (rosa), 2023 (verde) y 2024 (azul) con respecto de los estratos RIM. \nTotal de mareas muestreadas en los años (derecha) 2022 (rosa), 2023 (verde) y 2024 (azul).",
+    theme = theme(
+      plot.caption = element_text(hjust = 0.5, size = 9, face = "italic", margin = margin(t = 15))
+    )
+  )
+  
+
+
+```
+
+Las visitas a puerto realizadas por los muestreadores (Fig. 3) muestran
+también la misma tendencia que los muestreos realizados, con un
+incremento en el año 2023 (Fig. 3, B). En cuanto a las visitas a los
+diferentes puertos de la RIM en CC destaca el descanso en los puertos de
+Santander y Suances (estos puertos se dejaron de muestrear en 2022), así
+como el puerto de San Vicente de la Barquera donde las visitas en 2023
+descendieron respecto de años anteriores. Por el contrario, destacan los
+aumentos en las visitas a los puertos de Avilés, Santoña, Luarca y sobre
+todo en Llanes (Fig. 3, A). La comparación de las visitas a puerto con
+el número de visitas que se pretenden fijar para el próximo PPT
+demuestra que son inferiores en la mayoría de los puertos (Fig. 3, A),
+con excepción de Santoña y Llanes.
+
+```{r}
+
+## a) Visits by port
+
+
+visits_ports <- rim[rim$PUERTO %in% cities, ] %>% 
+  group_by(YEAR, PUERTO) %>% 
+  summarise(VISITAS_PUERTO_ANUALES = n_distinct(FECHA_MUE))
+
+prescription_ports <- prescription_ports %>% 
+  group_by(AREA_INFLUENCIA) %>% 
+  mutate(PRESCRIPCIONES_AREA = sum(PRESCRIPCIONES))
+
+prescription_ports <- prescription_ports[prescription_ports$AREA_INFLUENCIA %in% 
+                                           influence_area, ]
+  
+
+visits_ports <- merge(visits_ports,
+                      prescription_ports[, c("PUERTO", 
+                                             "PRESCRIPCIONES", 
+                                             "PRESCRIPCIONES_AREA")], 
+                      all.x = TRUE)
+
+visits_ports <- visits_ports %>% 
+  pivot_wider(
+    names_from = YEAR,
+    values_from = VISITAS_PUERTO_ANUALES,
+    values_fill = 0
+  ) %>% 
+  pivot_longer(cols = c("PRESCRIPCIONES", years), 
+               names_to = "YEAR", 
+               values_to = "VISITAS_PUERTO_ANUALES")
+
+
+## a) Visits by year
+
+visits_ports <- visits_ports %>% 
+  group_by(YEAR) %>% 
+  mutate(VISITAS_ANUALES = sum(VISITAS_PUERTO_ANUALES))
+
+
+```
+
+```{r}
+
+## ---- Plot the data visit_year_estratum ----
+
+fig_c <- ggplot(unique(visits_ports[, c("YEAR", "VISITAS_ANUALES")]), 
+                aes(x = YEAR, 
+                    y = VISITAS_ANUALES,
+                    fill= YEAR)) + 
+  geom_bar(stat = "identity") + 
+  coord_flip() +
+  scale_fill_discrete(name = "Leyenda")
+ 
+
+fig_d <- ggplot(visits_ports, 
+                aes(x = PUERTO, 
+                    y = VISITAS_PUERTO_ANUALES, 
+                    fill = YEAR)) + 
+  geom_bar(stat = "identity", 
+           position = "dodge2") + 
+  coord_flip() +
+  scale_fill_discrete(name = "Leyenda") 
+
+
+(fig_c + fig_d) + 
+  plot_layout(widths = c(1, 2.5),
+              guides = "collect") +
+  plot_annotation(
+    caption = "Figura 3: Comparación del número de visitas a puerto por estrato RIM en Asturias-Cantabria: \nA) en los años 2021(azul), 2022 (marrón) y 2023 (gris) con respecto de los estratos RIM. \nB) total de mareas muestreadas en los años 2021(azul), 2022 (marrón) y 2023 (gris). \nVisitas PPT son las que se quieren fijar para el próximo pliego. \nLos puertos de Santander y Suances se dejaron de muestrear en 2022. \nLas visitas prescritas PPT (negro) definen las que se pretenden plantear para el nuevo pliego.",
+    theme = theme(
+      plot.caption = element_text(hjust = 0.5, size = 9, face = "italic", margin = margin(t = 15))
+    )
+  ) & theme(legend.position = "bottom")
+  
+
+```
+
+## 2. Análisis del conjunto de los puertos RIM del CC en 2023
+
+Con el fin de analizar el año 2023 se detallan primeramente el total de
+mareas totales descargadas en todos los puertos RIM de CC (Avilés,
+Gijón, Luarca, Llanes, San Vicente de la Barquera y Santoña) (Fig. 4).
+
+En este contexto, los puertos RIM en el ámbito CC presentan un mayor
+peso de las artes menores dentro del total de mareas descargadas. Entre
+ellas destacan los PALANGRE_CN, el TRASMALLO_CN y el CERCO_CN como
+mareas predominantes, estando solo presente las mareas de arrastre
+(BACA_CN) en Gijón y Avilés. En cuanto a las mareas de comunidad
+solamente existen dentro de los puertos de Avilés (PALANGRE_AC) y en
+Gijón (BACA_AC). En cuanto a la proporción de mareas por puerto destaca
+el gran peso en el puerto de Santoña de las mareas CERCO_CN que suponen
+el 64% de las mareas descargadas en 2023 o el PALANGRE_CN en Avilés con
+casi un 50% de las mareas.
+
+También se detallan las mareas muestreadas dentro de la RIM por mes y
+estrato RIM con el fin de entender su evolución anual (Tabla 1 y Fig.
+5). Además, con el fin de estudiar la estacionalidad de cada estrato RIM
+en 2023, se presenta en el ANEXO A el número de mareas muestreadas por
+mes respecto de cada estrato RIM en particular (ej: PALANGRE_CN,
+CERCO_CN, etc.) así se tiene una idea de la evolución anual de cada
+estrato RIM.
+
+Las mareas muestreadas (Tabla 1 y Fig. 5) son representativas, a grandes
+rasgos, de las mareas que entraron en los puestos RIM en 2023 (Fig. 4).
+Con un mayor peso en el área CC de las mareas de CERCO_CN (152 mareas
+muestreadas), TRASMALLO_CN (129) y PALANGRE_CN (120). Seguidas por la
+LÍNEA DE CABALLA (43) y BACA_CN (34).
+
+Además, todos los estratos RIM alcanzan una cobertura de muestreo igual
+o superior al 1%, siendo el de menos cobertura la BETA_CN con un 1% y
+los de mayor cobertura la BACA_AC (27,9%) y PALANGRE_AC (20%). (ver
+tabla 1)
+
+
+```{r}
+
+## PROCESS RIM DATA
+
+processed_rim <- process_rim_df(rim)
+
+## PROCESS NVDP DATA
+
+processed_nvdp <- process_nvdp_df(nvdp)
+
+
+```
+
+
+
+```{r}
+
+## OBTAIN THE OVERVIEW OF THE SAMPLES BY ESTRATO_RIM IN FUNCTION OF TOTAL UNLOADS
+
+general_stratum_analysis <- analysis_table_stratum(
+                                                  cities,
+                                                  processed_rim,
+                                                  processed_nvdp,
+                                                  stratums_sampled
+                                                  )
+
+
+
+```
+
+
+```{r}
+
+
+## OBTAIN THE SPECIFIC VISION ACCORDING TO THE PORT OF THE SAMPLES BY ESTRATO_RIM IN FUNCTION OF TOTAL UNLOADS
+
+
+port_stratum_analysis <- lapply(
+              cities, 
+              analysis_table_stratum,
+              processed_rim,
+              processed_nvdp,
+              stratums_sampled
+              )
+
+
+names(port_stratum_analysis) <- cities
+
+```
+
+
+
+```{r}
+
+## REPRESENTAR TABLA FINAL
+
+general_stratum_analysis %>%
+  kbl(caption = "Muestreos por Estrato") %>%
+  kable_styling(bootstrap_options = c("striped", "hover")) %>%
+  # Resaltamos la última fila (que ahora sabemos 100% que es TOTALES)
+  row_spec(nrow(general_stratum_analysis), bold = T, background = "#f1f5f9")
+
+
+```
+
+
+```{r}
+
+## MAIN WORK STRATUMS
+
+# main_rim_stratums <- unique(stratum_rim_analysis$ESTRATO_RIM)
+
+## CITY OF ANALYSIS
+
+city <- cities[[1]]
+
+```
+
+
+
+
+
+```{r}
+
+
+fig_e <- ggplot(processed_rim, 
+                aes(x = MES, 
+                    y = TOTAL_MONTHLY_SAMPLES,
+                    fill= ESTRATO_RIM)) + 
+  geom_bar(stat = "identity") + 
+  scale_fill_discrete(name = "Leyenda") + 
+  theme(axis.text.x = element_text(angle = 20, hjust = 1))
+
+
+(fig_e) +
+  plot_annotation(
+    caption = "Figura 5: Proporción de los distintos estratos RIM muestreados cada mes para el año 2023 \ndentro del ámbito de estudio de CC. El eje de abscisas corresponde a los meses y \nel de ordenadas al número total de mareas. Estos datos son la \ngráfica de los datos presentados en la tabla 1.",
+    theme = theme(
+      plot.caption = element_text(hjust = 0.5, size = 9, face = "italic", margin = margin(t = 15))
+    )
+  )
+
+
+```
+
+
+## 3. Análisis de cada puerto RIM en CC
+
+En este apartado se presenta un estudio individual de cada puerto RIM,
+donde se estudia el aporte de cada puerto a la RIM de CC en 2023.
+Además, se presenta un análisis de las mareas en 2023 con mareas totales
+descargadas en puerto (suma de mareas muestreadas y no muestreadas), los
+barcos únicos por estrato RIM y barcos muestreados por estrato RIM
+respecto del total. Los barcos únicos describen el número de barcos
+distintos que descargaron un determinado estrato RIM en un puerto
+concreto. También se indica en cada puerto otras peculiaridades como el
+modo de subasta y la hora de subasta aproximada en cada lonja.
+
+### 3.1. Puerto de Luarca
+
+Se trata del puerto más occidental dentro de los puertos de la RIM en el
+ámbito CC.
+
+**Modo trabajo en lonja:** la subasta en lonja se realiza con las cajas en
+suelo y los pesos de las cajas dentro de las mismas, debido a que fueron
+previamente pesadas. Esto facilita el muestreo, siendo el factor
+limitante la hora de llegada del barco a puerto ya que si llega cerca de
+la hora de subasta no hay tiempo material para muestrear.
+
+Para el muestreo de VOLANTA_CN en este puerto se precisan dos
+muestreadoras. La periodicidad de muestreo es una o dos veces por mes
+(26 visitas al año).
+
+**Modo de muestreo:** hasta el mes de octubre solo se acudía para
+muestrear mareas de VOLANTA_CN, pero a partir de octubre los días que se
+visita el puerto se hace muestreo aleatorio de las mareas incluyendo la
+VOLANTA_CN.
+
+**Horario de subasta:** Los horarios de subasta son todos los días por la
+tarde sobre las 4 de la tarde.
+
+**Principales estratos RIM:** Destaca el TRASMALLO_CN con un 46% de las
+mareas descargadas seguido de VOLANTA_CN con 20%, PALANGRE_CN con 15% y
+BETA_CN con 14%. (Fig. 4)
+
+#### 3.1.1. Análisis mareas muestreadas dentro de la RIM en 2023
+
+```{r}
+
+## REPRESENTAR TABLA FINAL
+
+port_stratum_analysis[["Luarca"]] %>%
+  kbl(caption = "Muestreos por Estrato") %>%
+  kable_styling(bootstrap_options = c("striped", "hover")) %>%
+  # Resaltamos la última fila (que ahora sabemos 100% que es TOTALES)
+  row_spec(nrow(port_stratum_analysis[["Luarca"]]), bold = T, background = "#f1f5f9")
+
+
+
+```
+
+
+
+
+# Diagnostico
+
+La tendencia de mareas anuales muestreadas es hacia un aumento
+considerable de las mismas con 382 mareas muestreadas en 2021, 363
+mareas muestreadas en 2022 y 570 mareas muestreadas en 2023 (Fig. 2B).
+El primer semestre de 2024 sigue la misma dinámica con un aumento
+respecto del primer semestre (hasta el mes de Julio, incluido) de 2023,
+con 301 mareas en 2023 frente a las 508 en 2024. Las visitas a puerto
+siguen también la misma dinámica con un aumento gradual con 289 visitas
+en 2022, 252 visitas en 2022 y 335 visitas en 2023 (Fig. 3 B).
+
+Las mareas muestreadas en la RIM 2023 presentan una cobertura aceptable
+y representativa de los estratos RIM que entran en los puertos CC.
+Respecto de los años anteriores las únicas mareas que se encuentran muy
+por debajo son PAREJA_CN, los demás estratos RIM se encuentran por
+encima, o más o menos similares, a 2022 y 2021 (Fig. 2A). Además, existe
+una clara tendencia hacia el abandono de las artes de arrastre, en este
+caso BACA_CN, BACA_AC y PAREJA_CN están decreciendo. Incluso prueba de
+que los barcos que descargan en los puertos CC no son muy abundantes, es
+el ejemplo de la BACA_AC en Gijón donde solo hay un barco que descarga
+esta marea y es el que muestreamos (Tabla 7). Esto implica un riesgo
+latente de pérdida de estas mareas debido a que en Avilés solo hay
+también un barco que faena de BACA_AC. Las artes menores tienen un mayor
+peso en la RIM de CC con los artes TRASMALLO_CN (129 mareas) y
+PALANGRE_CN (120 mareas) y CERCO_CN (152 mareas) (Tabla 1). A pesar de
+existir esta tendencia clara hacia las artes menores y perdida de la
+pesca de altura, el entorno es muy dinámico por lo que puede cambiar la
+tendencia.
+
+De todos los puertos muestreados el que más diversidad de mareas aporta
+a la RIM de CC es el puerto de Avilés. En este puerto, con carácter
+anual en 2023 se midieron todas las mareas prescritas en la PPT, al
+menos una vez, a excepción de las mareas de BACA_AC, JURELERA_CN y
+RASCO_CN (Tabla 4). Además, este puerto posee un sistema de venta en
+lonja por cinta con cámaras que lo hace un buen candidato para acoger un
+proyecto piloto de medición digital de peces basado en DEEP LEARNING. La
+implantación de un sistema de medición basado en imágenes supondría el
+acceso a muchas más mareas, incluidas las de arrastre, actualmente
+inaccesibles por los muestreadores. En el otro extremo figura el puerto
+de San Vicente de la Barquera que aporta solo 11 mareas de LINEA DE
+CABALLA y 4 de RASCO_CN (Tabla 10). Este puerto figuraba en la RIM para
+medir el RASCO_CN, pero el único barco que realizaba esa pesca la ha
+abandonado. Hay que destacar también el puerto de Santoña que es el que
+más CERCO_CN y RASCO_CN (Tabla 12) aporta a la RIM, así como el de
+Luarca para medir VOLANTA_CN. También hay que destacar el puerto de
+Llanes debido a que aporta gran variedad de mareas de bajura, además
+ayuda a incrementar las mareas de RASCO y VOLANTA_CN.
+
+En cuanto a las mareas muestreadas, existe el problema de la presencia
+mareas incompletas de BACA_CN. Este problema figuraba ya en el año 2022
+y en el año 2023 sigue latente. Este problema sucede con las mareas de
+BACA_CN muestreadas dentro del puerto de Gijón. No obstante, debido a la
+posibilidad de muestrear BACA_CN en uno de los barcos que antes
+realizaba la pesca de PAREJA_CN, el Luscinda, ahora se están pudiendo
+medir mareas de BACA_CN completas en Avilés. Las mareas de BACA_CN
+medidas en Avilés a pesar de ser mareas más pequeñas, de 1 día mientras
+que las de Gijón son mayores de 2 o 3 días, complementan a las
+incompletas disminuyendo el sesgo. En el anexo B se detalla cómo han
+aumentado las mareas completas respecto de 2022. También se describen
+que especies prioritarias suelen ser las que de una forma habitual se
+llevan a otras lonjas comparando 202 y 2023. Además, en el análisis del
+primer semestre de 2024 de la RIM se ve como este problema está
+mejorando y se han medido 15 mareas completas de las 26 totales en los
+puertos CC (Tabla 20).
+
+Respecto al estudio de puertos candidatos para completar la RIM sólo
+Santander podría aportar a la RIM 2023 mareas de arrastre. De todas
+formas, la cantidad de mareas de arrastre son bajas, lo que unido a la
+presencia de un único muestreador en Cantabria dificulta la posible
+medición de estas mareas (ej: BACA_CN o BACA_AC). No obstante, por el
+momento se están pudiendo medir en los puertos de Asturias y, por tanto,
+se está pudiendo cumplir las prescritas en la PPT. Por otra parte,
+Santander carece de mareas de PAREJA_CN que son las más escasas este año
+en la RIM. Los demás puertos estudiados como Laredo, Castro Urdiales y
+Cudillero y sobre todo Lastres aportarían gran cantidad de mareas de
+arte menor. En este caso no sería muy necesario ya que en este momento
+el puerto de Llanes nos aporta gran cantidad (TRASMALLO, PALANGRE_CN,
+etc.). Sin embargo, parece interesante tener en cuenta el puerto de
+Lastres que presenta un gran volumen de mareas y barcos. Además, existen
+mareas de VOLANTA_CN que podrían complementar la RIM en caso de que el
+puerto de Llanes no pudiera aportar.
+
+Estos gráficos no representan necesariamente la estacionalidad de los
+estratos RIM en los puertos CC. Así, en algunos casos su tendencia puede
+ser por la necesidad de completar el número de mareas prescrito en PPT y
+no porque las mareas sigan una estacionalidad clara. Por ejemplo, en el
+caso de las LINEA DE CABALLA sí que representa una marcada
+estacionalidad debido a la presencia de este tipo de mareas durante los
+meses de verano (marzo, abril, mayo). En el caso del CERCO también
+presenta un máximo de mareas durante los meses de verano (marzo, abril,
+mayo, junio). Los demás estratos RIM presentan una distribución más
+homogénea. Probablemente debido a la repartición de las mareas por año.
+
+
+
+
