@@ -3,47 +3,54 @@
 #'
 #' @param years years of work
 
-
-load_rim_data <- function(years){
+load_rim_data <- function(years) {
   
+  # 1. Construimos directamente las rutas de las carpetas de cada año
+  # Ej: "rim/2020", "rim/2021" (o file.path("rim", years))
+  target_dirs <- file.path("data", "rim", years)
   
-  dirs <- list.dirs(getwd())
+  # Filtramos solo los directorios que realmente existen para evitar errores
+  valid_dirs <- target_dirs[dir.exists(target_dirs)]
   
-  match_rim <- sapply(years,
-                       function(i){
-                         file.path("rim", i)
-                       }
-  )
+  if (length(valid_dirs) == 0) {
+    stop("No se encontró ningún directorio válido para los años especificados en la carpeta 'rim'.")
+  }
   
+  # 2. Leemos los archivos de cada carpeta de forma limpia con lapply
+  rim_files_list <- lapply(valid_dirs, function(d) {
+    filenames <- list.files(d, full.names = FALSE)
+    
+    # Si la carpeta está vacía, retornamos NULL
+    if (length(filenames) == 0) return(NULL)
+    
+    # ¡CORRECCIÓN CLAVE AQUÍ!
+    # Usamos 'file' y 'path' para que coincidan con los nombres reales de importRIMLengths
+    data_per_dir <- mapply(
+      importRIMLengths, 
+      file = filenames, 
+      path = d, 
+      SIMPLIFY = FALSE
+    )
+    
+    do.call(rbind, data_per_dir)
+  })
   
-  rim_dirs <- sapply(match_rim, 
-                      function(i, f){
-                        f <- f[grepl(i, f)]
-                      }, 
-                      dirs)
+  # Eliminamos posibles elementos NULL (si una carpeta estaba vacía)
+  rim_files_list <- rim_files_list[!sapply(rim_files_list, is.null)]
   
-  rim_names <- list.files(rim_dirs)
+  if (length(rim_files_list) == 0) {
+    stop("No se pudieron cargar archivos de los directorios indicados.")
+  }
   
-  rim_files <- mapply(importRIMLengths, 
-                      rim_names, 
-                      rim_dirs,
-                      SIMPLIFY = FALSE)
+  # 3. Unificamos todos los años en un único data.frame
+  rim_merged <- do.call(rbind, rim_files_list)
   
-  rim_files <- do.call(rbind, rim_files)
+  # 4. Ajustes finales en R base
+  rim_merged$YEAR <- as.character(rim_merged$YEAR)
   
-  ## Internal adjust for rim df
+  rim_merged <- convert_month_number_name(rim_merged, table_num_month)
   
-  rim_files$YEAR <- as.character(rim_files$YEAR)
-  
-  ## Add month with the name,not the number
-  
-  rim_files <- convert_month_number_name(rim_files, 
-                                         table_num_month)
-  
-  return(rim_files)
-  
+  return(rim_merged)
 }
-
-
 
 

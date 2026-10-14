@@ -1,7 +1,7 @@
 ---
 title: "RIM ANALYSIS REPORT"
 author: "SAP-RIM"
-date: "2026-01-21"
+date: "`r Sys.Date()`"
 output:
   html_document:
     toc: yes
@@ -13,23 +13,40 @@ output:
     highlight: kate
     df_print: paged
     code_folding: hide
-  pdf_document:
-    toc: yes
-    toc_depth: '4'
-  word_document:
-    toc: yes
-    toc_depth: '4'
 mail: alberto.candelario@ieo.csic.es
-editor_options:
-  markdown:
-    wrap: 72
-markdown: null
-wrap: 72
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(
+  echo = FALSE, 
+  warning = FALSE, 
+  message = FALSE,
+  fig.width = 10,
+  fig.height = 6
+)
+
 ```
+
+
+```{r}
+
+#### ---- Global main variables ---- ####
+
+#### Work years ####
+
+years <- c("2022", "2023", "2024")
+
+#### Specific work year ####
+
+specific_year <- c("2022")
+
+#### Influence area ####
+
+influence_area <- c("GN")
+
+
+```
+
 
 ```{r}
 
@@ -42,21 +59,28 @@ source(file.path(getwd(), "R", "load_settings.R"))
 
 ```{r}
 
+#### ---- Specific variables ---- ####
+
+cities <- prescription_ports[prescription_ports$AREA_INFLUENCIA == influence_area, 
+                             "PUERTO"]
+
+cities <- unique(cities[!is.na(cities)])
+
+
+```
+
+
+
+
+```{r}
+
 #### ---- Load RIM and NVDP data ---- #### 
 
-## a) Work years ----
+## a) Load nvdp files ----
 
-years <- c("2022", "2023", "2024")
+nvdp <- load_nvdp_data(years, path_files)
 
-## b) specific work year ----
-
-specific_year <- c("2023")
-
-## b) Load nvdp files ----
-
-nvdp <- load_nvdp_data(years)
-
-## c) Load rim files ----
+## b) Load rim files ----
 
 rim <- load_rim_data(years)
 
@@ -66,12 +90,10 @@ rim <- load_rim_data(years)
 
 El presente documento constituye un análisis en detalle de los puertos
 que conforman la Red de Información y Muestreo (RIM) en el ámbito
-geográfico [INSERTAR AREAS MUESTREO, ej: Asturas-Cantabria],
-correspondientes a la región [INSERTAR REGIÓN DE TRABAJO, ej: Cántabrico
-Central].
+geográfico **`r area_muestreo_text`**.
 
-Se hace, por tanto, una comparativa cronológica de los años [INSERTAR
-AÑOS] de los parámetros de calidad de los muestreos, extrayendo las
+Se hace, por tanto, una comparativa cronológica de los años **`r years_text`** 
+de los parámetros de calidad de los muestreos, extrayendo las
 principales conclusiones que desprendan los mismos.
 
 # Metodología
@@ -84,57 +106,51 @@ práctica.
 El manejo de las fuentes de datos, así como la estructura del análisis
 se detalla a continuación.
 
-**1. Análisis de tendencias de los puertos de la RIM en [INSERTAR
-ANHOS].** Donde se comparan las mareas por estrato RIM en los tres años,
+**1. Análisis de tendencias de los puertos de la RIM en **`r years_text`**. ** 
+Donde se comparan las mareas por estrato RIM en los tres años,
 así como el número total de visitas totales por puerto.
 
-**2. Análisis del conjunto de puertos RIM en 2023,** donde el análisis
+**2. Análisis del conjunto de puertos RIM en **`r specific_year`**, ** donde el análisis
 se centra en el total de mareas descargadas en cada puerto RIM (sacadas
 del NVDP) así como las mareas que fueron muestreadas en el conjunto de
 los puertos CC por estrato RIM (SIRENO).
 
 **3. Análisis individual de cada puerto RIM**, con el fin de ver las
-mareas que aporta cada uno al ejercicio anual 2023. También se adjunta
+mareas que aporta cada uno al ejercicio anual **`r specific_year`**. También se adjunta
 información relevante en cada puerto como funcionamiento de venta en
 lonja, horario de venta, etc. En este mismo apartado se describen las
-mareas en cada puerto durante 2023, con el número total de mareas por
+mareas en cada puerto durante **`r specific_year`**, con el número total de mareas por
 estrato RIM, número de barcos únicos que cubren cada marea (obtenidos de
 NVDP) y el número de barcos muestreados respecto del total en la RIM
 (obtenidos de SIRENO).
 
-**4. Estudio de otros puertos** del ámbito geográfico CC con potencial
-para complementar la actual RIM. La información se ha obtenido del NVDP
-2023 para los puertos: Cudillero, Lastres, Santander, Laredo y Castro
-Urdiales.
-
-**5. Estudio del primer semestre de la RIM 2024 en los puertos CC**: los
-datos son obtenidos del conteo directo de los estadillos. Por tanto,
-están sujetos a posibles futuros cambios. Este número por tanto podría
-variar ligeramente. Diagnóstico: se detallan las principales
-conclusiones de la información obtenida en función de los datos de 2023
-en los puertos CC. También se apuntan futuras líneas que mejorarían la
-gestión de los puertos CC.
-
-# Área de estudio
-
-El espacio geográfico de estudio Cantábrico central (CC) corresponde a
-los puertos situados dentro de las Comunidades Autónomas de Asturias y
-Cantabria. Los puertos seleccionados actualmente dentro de la RIM son,
-de oeste a este: Luarca, Avilés, Gijón, Llanes, San Vicente de la
-Barquera y Santoña (Fig. 1).
 
 ```{r}
 
-## ---- b) Vector with the work cities: change in your specific chase ---- 
+#### Puntos opcionales a poner en el informe ####
 
+# **4. Estudio de otros puertos** del ámbito geográfico CC con potencial
+# para complementar la actual RIM. La información se ha obtenido del NVDP
+# 2023 para los puertos: Cudillero, Lastres, Santander, Laredo y Castro
+# Urdiales.
 
-influence_area <- c("GN")
+# **5. Estudio del primer semestre de la RIM 2024 en los puertos CC**: los
+# datos son obtenidos del conteo directo de los estadillos. Por tanto,
+# están sujetos a posibles futuros cambios. Este número por tanto podría
+# variar ligeramente. Diagnóstico: se detallan las principales
+# conclusiones de la información obtenida en función de los datos de 2023
+# en los puertos CC. También se apuntan futuras líneas que mejorarían la
+# gestión de los puertos CC.
 
-cities <- prescription_ports[prescription_ports$AREA_INFLUENCIA == influence_area, 
-                             "PUERTO"]
 
 ```
 
+
+# Área de estudio
+
+El espacio geográfico de estudio corresponde a
+los puertos situados dentro de **`r area_region`**. Los puertos seleccionados 
+actualmente dentro de la RIM son **`r cities`** (Fig. 1).
 
 
 
@@ -158,47 +174,50 @@ draw_map(coords_ports)
 
 ```
 
-Además, en el apartado 4 se describen otros puertos con potencial para
-complementar la RIM en el ámbito CC. Estos puertos son, de oeste a este:
-Cudillero, Lastres, Santander, Laredo y Castro Urdiales.
+
+```{r}
+
+#### Puntos opcionales a poner en el informe ####
+
+# Además, en el apartado 4 se describen otros puertos con potencial para
+# complementar la RIM en el ámbito CC. Estos puertos son, de oeste a este:
+# Cudillero, Lastres, Santander, Laredo y Castro Urdiales.
+
+
+```
+
+
+
 
 # Analisis
 
-## 1. Análisis de tendencias de los puertos RIM 2021, 2022 y 2023 (muestreos y visitas)
+## 1. Análisis de tendencias de los puertos RIM **`r years_text`** (muestreos y visitas)
 
 En el presente apartado se analizan las mareas muestreadas y visitas
-realizadas en 2022, 2023 y 2024 en el conjunto de puertos del CC en
-Asturias y Cantabria.
+realizadas en **`r years_text`** en el conjunto de puertos de **`r area_muestreo_text`**.
 
-La comparativa de las mareas RIM muestreadas en 2021, 2022, 2023 por
+La comparativa de las mareas RIM muestreadas en **`r years_text`** por
 estrato RIM (Fig. 2), muestra un aumento notable de los muestreos en
-2023 (Fig. 2, B). Por otra parte, el estudio de los estratos RIM (Figura
-2.A) muestra como en 2023 las mareas de BETA_CN y PAREJA_CN presentan un
-descenso respecto de 2021 y 2022. Por el contrario, existe un aumento en
+**`r specific_year`** (Fig. 2, B). Por otra parte, el estudio de los estratos RIM (Figura
+2.A) muestra como en **`r specific_year`** las mareas de BETA_CN y PAREJA_CN presentan un
+descenso respecto de [RELLENAR A MANO POR EL USUARIO]. Por el contrario, existe un aumento en
 los muestreos de TRASMALLO_CN, CERCO_CN; LINEA DE CABALLA_CN y
 PALANGRE_CN (Fig. 2, A). Los muestreos de los demás estratos RIM se
 mantienen bastante parecidos.
 
 ```{r}
 
-## ---- Analysis visits per year by ESTRATO_RIM ----
-
+## ---- Analysis samples per year by ESTRATO_RIM ---- #### 
 samples_year_stratum <- rim[rim$PUERTO %in% cities, ] %>% 
+  group_by(YEAR, ESTRATO_RIM) %>% 
+  summarise(MUESTREOS = n_distinct(COD_ID), .groups = "drop") %>% 
   group_by(YEAR) %>% 
-  mutate(MUESTREOS_ANYO = n_distinct(COD_ID)) %>% 
-  group_by(ESTRATO_RIM, YEAR, MUESTREOS_ANYO) %>% 
-  summarise(MUESTREOS = n_distinct(COD_ID))
-
-
-```
-```{r}
-## ---- Obtain the stratums sampled ---- 
+  mutate(MUESTREOS_ANYO = sum(MUESTREOS)) %>% 
+  ungroup()
 
 stratums_sampled <- unique(samples_year_stratum$ESTRATO_RIM)
 
-
 ```
-
 
 
 
@@ -207,31 +226,24 @@ stratums_sampled <- unique(samples_year_stratum$ESTRATO_RIM)
 ## ---- Plot the data visit_year_estratum ----
 
 fig_a <- ggplot(samples_year_stratum, 
-                aes(x = ESTRATO_RIM, 
-                    y = MUESTREOS, 
-                    fill = YEAR)) + 
-  geom_bar(stat = "identity", 
-           position = "dodge2") + 
+                aes(x = ESTRATO_RIM, y = MUESTREOS, fill = as.factor(YEAR))) + 
+  geom_bar(stat = "identity", position = "dodge2") + 
   scale_fill_discrete(name = "Año") + 
+  theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
- 
-  
 
-fig_b <- ggplot(samples_year_stratum, 
-                aes(x = YEAR, 
-                    y = MUESTREOS_ANYO,
-                    fill = YEAR)) + 
+fig_b <- ggplot(unique(samples_year_stratum[, c("YEAR", "MUESTREOS_ANYO")]), 
+                aes(x = YEAR, y = MUESTREOS_ANYO, fill = as.factor(YEAR))) + 
   geom_col() + 
-  ylab("MUESTREOS")
-
+  scale_fill_discrete(name = "Año") +
+  ylab("MUESTREOS TOTALES") +
+  theme_minimal()
 
 (fig_a + fig_b) + 
-  plot_layout(widths = c(3, 1)) +
+  plot_layout(widths = c(3, 1), guides = "collect") +
   plot_annotation(
-    caption = "Figura 2: Comparación del número de mareas muestreadas por estrato RIM (izquierda) en al ámbito de estudio de CC: \nA) en los años 2022 (rosa), 2023 (verde) y 2024 (azul) con respecto de los estratos RIM. \nTotal de mareas muestreadas en los años (derecha) 2022 (rosa), 2023 (verde) y 2024 (azul).",
-    theme = theme(
-      plot.caption = element_text(hjust = 0.5, size = 9, face = "italic", margin = margin(t = 15))
-    )
+    caption = "Figura 2: Comparación del número de mareas muestreadas por estrato RIM y total anual.",
+    theme = theme(plot.caption = element_text(hjust = 0.5, size = 9, face = "italic"))
   )
   
 
@@ -255,41 +267,41 @@ con excepción de Santoña y Llanes.
 
 ## a) Visits by port
 
-
 visits_ports <- rim[rim$PUERTO %in% cities, ] %>% 
   group_by(YEAR, PUERTO) %>% 
-  summarise(VISITAS_PUERTO_ANUALES = n_distinct(FECHA_MUE))
+  summarise(VISITAS_PUERTO_ANUALES = n_distinct(FECHA_MUE), .groups = "drop")
 
-prescription_ports <- prescription_ports %>% 
+prescription_area_df <- prescription_ports %>% 
+  filter(AREA_INFLUENCIA %in% influence_area) %>% 
   group_by(AREA_INFLUENCIA) %>% 
-  mutate(PRESCRIPCIONES_AREA = sum(PRESCRIPCIONES))
+  mutate(PRESCRIPCIONES_AREA = sum(PRESCRIPCIONES, na.rm = TRUE)) %>% 
+  ungroup()
 
-prescription_ports <- prescription_ports[prescription_ports$AREA_INFLUENCIA %in% 
-                                           influence_area, ]
-  
+# Cruce seguro por la columna PUERTO
+visits_ports <- merge(
+  visits_ports,
+  prescription_area_df[, c("PUERTO", "PRESCRIPCIONES", "PRESCRIPCIONES_AREA")],
+  by = "PUERTO",
+  all.x = TRUE
+)
 
-visits_ports <- merge(visits_ports,
-                      prescription_ports[, c("PUERTO", 
-                                             "PRESCRIPCIONES", 
-                                             "PRESCRIPCIONES_AREA")], 
-                      all.x = TRUE)
-
-visits_ports <- visits_ports %>% 
+# Pivote seguro usando all_of()
+visits_ports_wide <- visits_ports %>% 
   pivot_wider(
     names_from = YEAR,
     values_from = VISITAS_PUERTO_ANUALES,
     values_fill = 0
+  )
+
+visits_ports_long <- visits_ports_wide %>% 
+  pivot_longer(
+    cols = any_of(as.character(years)), # <--- Usamos any_of() para tolerar años faltantes
+    names_to = "YEAR", 
+    values_to = "VISITAS_PUERTO_ANUALES"
   ) %>% 
-  pivot_longer(cols = c("PRESCRIPCIONES", years), 
-               names_to = "YEAR", 
-               values_to = "VISITAS_PUERTO_ANUALES")
-
-
-## a) Visits by year
-
-visits_ports <- visits_ports %>% 
   group_by(YEAR) %>% 
-  mutate(VISITAS_ANUALES = sum(VISITAS_PUERTO_ANUALES))
+  mutate(VISITAS_ANUALES = sum(VISITAS_PUERTO_ANUALES, na.rm = TRUE)) %>% 
+  ungroup()
 
 
 ```
@@ -298,23 +310,20 @@ visits_ports <- visits_ports %>%
 
 ## ---- Plot the data visit_year_estratum ----
 
-fig_c <- ggplot(unique(visits_ports[, c("YEAR", "VISITAS_ANUALES")]), 
-                aes(x = YEAR, 
-                    y = VISITAS_ANUALES,
-                    fill= YEAR)) + 
+fig_c <- ggplot(unique(visits_ports_long[, c("YEAR", "VISITAS_ANUALES")]), 
+                aes(x = YEAR, y = VISITAS_ANUALES, fill = YEAR)) + 
   geom_bar(stat = "identity") + 
   coord_flip() +
-  scale_fill_discrete(name = "Leyenda")
+  scale_fill_discrete(name = "Año") +
+  theme_minimal()
  
 
-fig_d <- ggplot(visits_ports, 
-                aes(x = PUERTO, 
-                    y = VISITAS_PUERTO_ANUALES, 
-                    fill = YEAR)) + 
-  geom_bar(stat = "identity", 
-           position = "dodge2") + 
+fig_d <- ggplot(visits_ports_long, 
+                aes(x = PUERTO, y = VISITAS_PUERTO_ANUALES, fill = YEAR)) + 
+  geom_bar(stat = "identity", position = "dodge2") + 
   coord_flip() +
-  scale_fill_discrete(name = "Leyenda") 
+  scale_fill_discrete(name = "Año") +
+  theme_minimal()
 
 
 (fig_c + fig_d) + 
@@ -372,6 +381,7 @@ tabla 1)
 ## PROCESS RIM DATA
 
 processed_rim <- process_rim_df(rim)
+
 
 ## PROCESS NVDP DATA
 
@@ -518,11 +528,11 @@ BETA_CN con 14%. (Fig. 4)
 
 ## REPRESENTAR TABLA FINAL
 
-port_stratum_analysis[["Luarca"]] %>%
+port_stratum_analysis[["A Coruña"]] %>%
   kbl(caption = "Muestreos por Estrato") %>%
   kable_styling(bootstrap_options = c("striped", "hover")) %>%
   # Resaltamos la última fila (que ahora sabemos 100% que es TOTALES)
-  row_spec(nrow(port_stratum_analysis[["Luarca"]]), bold = T, background = "#f1f5f9")
+  row_spec(nrow(port_stratum_analysis[["A Coruña"]]), bold = T, background = "#f1f5f9")
 
 
 
